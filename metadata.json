@@ -1,0 +1,6 @@
+{
+  "name": "Household Service Provider System",
+  "description": "An online platform connecting customers with local service providers for household tasks like cleaning, cooking, and child care, while empowering workers with job opportunities.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
