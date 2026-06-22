@@ -1,3 +1,5 @@
+import { db } from "../firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Icon } from '../components/shared/Icon';
@@ -7,7 +9,7 @@ interface RegisterProviderProps {
 }
 
 export const RegisterProvider: React.FC<RegisterProviderProps> = ({ navigate }) => {
-  const { registerProvider, categories } = useApp();
+  const { categories } = useApp();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -29,7 +31,7 @@ export const RegisterProvider: React.FC<RegisterProviderProps> = ({ navigate }) 
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMess(null);
 
@@ -44,23 +46,29 @@ export const RegisterProvider: React.FC<RegisterProviderProps> = ({ navigate }) 
     }
 
     // Direct registration
-    const res = registerProvider({
-      fullName,
-      email,
-      phone,
-      address,
-      aadhaar,
-      skills,
-      experience,
-      categories: selectedCats,
-      password
-    });
+    try {
+      await addDoc(collection(db, "providers"), {
+        fullName,
+        email,
+        phone,
+        address,
+        aadhaar,
+        skills,
+        experience,
+        categories: selectedCats,
+        password,
+        status: "pending",
+        createdAt: serverTimestamp()
+      });
 
-    if (res.success) {
-      setSuccessInfo(res.error || 'Your registration was submitted!');
-    } else {
-      setErrorMess(res.error || 'A signup error occurred');
-    }
+      setSuccessInfo("Provider registration submitted successfully!");
+
+    } catch (error) {
+      console.error(error);
+      setErrorMess("Failed to save provider data");
+    } 
+
+    
   };
 
   return (
@@ -93,11 +101,8 @@ export const RegisterProvider: React.FC<RegisterProviderProps> = ({ navigate }) 
                 </p>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => {
-                      // Login as admin dynamically
-                      const loginContext = registerProvider; // Dummy access
-                      navigate('login');
-                    }}
+                    onClick={() => navigate('login')}
+                    
                     className="w-full text-center py-2 bg-blue-600 text-white text-[10px] rounded-lg font-bold hover:bg-blue-700 cursor-pointer"
                   >
                     Go to Login Screen
